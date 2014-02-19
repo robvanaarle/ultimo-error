@@ -1,0 +1,22 @@
+{
+    "name": "robvanaarle/ultimo-error",
+    "description": "Extensive error and exception catcher",
+    "type": "library",
+    "keywords": [
+        "error",
+        "exception",
+        "catcher"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+	  		{
+	    	  "name": "Rob van Aarle"
+	  		}
+	  ],
+    "autoload": {
+    		"psr-4": {
+       			"ultimo\\": "src/ultimo/"
+    		}
+  }
+}
+
