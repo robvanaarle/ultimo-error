@@ -263,14 +263,15 @@ abstract class ErrorHandler {
             return;
         }
 
+        // increase memory limit to prevent memory errors during handling
+        $currentLimit = $this->increaseMemoryLimit();
+
         $error = error_get_last();
         if ($error) {
 
-            // increase memory limit to prevent memory errors during handling
-            $currentLimit = $this->increaseMemoryLimit();
-
             // only handle errors specified by error_reporting()
             if (!(error_reporting() & $error['type'])) {
+                $this->restoreMemoryLimit($currentLimit);
                 return;
             }
 
@@ -292,9 +293,9 @@ abstract class ErrorHandler {
             }
 
             $this->storeErrorHash($e);
-            
-            $this->restoreMemoryLimit($currentLimit);
         }
+
+        $this->restoreMemoryLimit($currentLimit);
     }
 
 

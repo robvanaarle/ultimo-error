@@ -20,7 +20,7 @@ Catches all exceptions and almost all errors. The main class is the result of ye
 ## Usage
 
 ###
-Register an ErrorHandler first, a anything may trigger errors or exceptions. You have to trust the ErrorHandler itself not to trigger errors though.
+Register an ErrorHandler first, as anything may trigger errors or exceptions. You have to trust the ErrorHandler itself not to trigger errors though.
 	
 	<?php
 	// require the ErrorHandler manually, as an autoloading mechanism may trigger errors
