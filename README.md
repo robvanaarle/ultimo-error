@@ -22,17 +22,18 @@ Catches all exceptions and almost all errors. The main class is the result of ye
 ###
 Register an ErrorHandler first, as anything may trigger errors or exceptions. You have to trust the ErrorHandler itself not to trigger errors though.
 	
-	<?php
-	// require the ErrorHandler manually, as an autoloading mechanism may trigger errors
-    require_once('ultimo/debug/error/ErrorPrinter.php');
+  <?php
+  // require the ErrorHandler manually, as an autoloading mechanism may trigger errors
+  require_once('ultimo/debug/error/ErrorPrinter.php');
 
-	// register errorHandler (for fatals)
-    $errorHandler = new \ultimo\debug\error\ErrorPrinter();
-	
-	// ... Start your script or application
-    doYourThing();
+  // register errorHandler (for fatals)
+  $errorHandler = new \ultimo\debug\error\ErrorPrinter();
+  $errorHandler->register();
 
-    // unregister errorHandler (to indicate there was no fatal)
-    $errorHandler->unregister();
+  // ... Start your script or application
+  doYourThing();
 
-	// End of script or application
+  // unregister errorHandler (to indicate there was no fatal)
+  $errorHandler->unregister();
+
+  // End of script or application
