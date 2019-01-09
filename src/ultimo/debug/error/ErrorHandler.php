@@ -26,12 +26,12 @@ abstract class ErrorHandler {
      * @var boolean
      */
     private $isRegistered = false;
-    
+
     /**
      * Tells whether script error messages should be logged to the server's
      * error log or error_log. This option is thus server-specific. If set to
      * null, the php ini value 'log_errors' will be used.
-     * @var boolean 
+     * @var boolean
      */
     protected $logErrors = null;
 
@@ -39,36 +39,36 @@ abstract class ErrorHandler {
      * Do not log repeated messages. Repeated errors must occur in the same file
      * on the same line unless ignoreRepeatedSource is set true. If set to null,
      * the php ini value 'ignore_repeated_errors' will be used.
-     * @var boolean 
+     * @var boolean
      */
     protected $ignoreRepeatedErrors = null;
-    
+
     /**
      * Ignore source of message when ignoring repeated messages. When this
      * setting is on you will not log errors with repeated messages from
      * different files or sourcelines. If set to null, the php ini value
      * 'ignore_repeated_source' will be used.
-     * @var boolean 
+     * @var boolean
      */
     protected $ignoreRepeatedSource = null;
-    
+
     /**
      * An array with md5 hashes of errors as keys to keep track of which errors
      * are already encountered and handled.
      * @var array
      */
     protected $handledErrorHashes = array();
-    
+
     /**
      * The last encoutered error.
-     * @var \ErrorException 
+     * @var \ErrorException
      */
     protected $lastError;
-    
+
     /**
      * The error constants. A hashtable with error codes as key and error names
      * as value
-     * @var hash 
+     * @var hash
      */
     static protected $errorNames = array(
         E_ERROR => 'Error',
@@ -86,7 +86,7 @@ abstract class ErrorHandler {
         E_DEPRECATED => 'Deprecated',
         E_USER_DEPRECATED => 'User deprecated'
     );
-    
+
     /**
      * Registers this class as handler for errors, fatals and exceptions.
      */
@@ -126,7 +126,7 @@ abstract class ErrorHandler {
             return 'Unknown error(' . $errorCode . ')';
         }
     }
-    
+
     /**
      * Returns the hash of an error exception.
      * @param ErrorException $e The error exception to hash.
@@ -140,7 +140,7 @@ abstract class ErrorHandler {
             return md5($e->getCode() . ';' . $e->getMessage() . ';' . $e->getFile() . ';' . $e->getLine());
         }
     }
-    
+
     /**
      * Returns whether ignore repeating errors is enabled and if so, whether
      * the specified ErrorException is a repeating one.
@@ -155,22 +155,22 @@ abstract class ErrorHandler {
         if ($ignoreRepeatedErrors === null) {
             $ignoreRepeatedErrors = ini_get('ignore_repeated_errors');
         }
-        
+
         if (!$ignoreRepeatedErrors) {
             return false;
         }
-        
+
         // use member value if not null, else use ini value
         $ignoreRepeatedSource = $this->ignoreRepeatedSource;
         if ($ignoreRepeatedSource === null) {
             $ignoreRepeatedSource = ini_get('ignore_repeated_source');
         }
-        
+
         $hash = $this->hashError($e, $ignoreRepeatedSource);
-        
+
         return isset($this->handledErrorHashes[$hash]);
     }
-    
+
     /**
      * Stores an error's hash to preveting handling repeating errors.
      * @param \ErrorException $e Error to store.
@@ -188,7 +188,7 @@ abstract class ErrorHandler {
         // Errors in this function become fatal errors, and will be handled by _checkForUncaughtErrorCallback()
         // Fatal errors in this function will be handled by checkForUncaughtErrorCallback()
         // Exception in this function will be caught by the try-catch statement
-        
+
         if (!$this->isRegistered) {
             return false;
         }
@@ -198,11 +198,11 @@ abstract class ErrorHandler {
 
         $e = new \ErrorException($errstr, $errno, 0, $errfile, $errline);
         $this->lastError = $e;
-        
+
         // only handle errors specified by error_reporting()
         if ((error_reporting() & $errno) == 0) {
             $this->restoreMemoryLimit($currentLimit);
-            
+
             // prevent this error being processed in _checkForUncaughtErrorCallback
             $this->storeErrorHash($e);
             return false;
@@ -250,7 +250,7 @@ abstract class ErrorHandler {
         }
         $this->restoreMemoryLimit($currentLimit);
     }
-    
+
     /**
      * Called by PHP on shutdown to check if there are unhandled errors.
      */
@@ -282,7 +282,7 @@ abstract class ErrorHandler {
                 $this->restoreMemoryLimit($currentLimit);
                 return;
             }
-            
+
 
             try {
                 $this->log($e);
@@ -309,18 +309,18 @@ abstract class ErrorHandler {
         if ($logErrors === null) {
             $logErrors = ini_get('log_errors');
         }
-        
+
         if (!$logErrors) {
             return;
         }
-      
+
         if ($e instanceof \ErrorException) {
             $this->logError($e);
         } else {
             $this->logException($e);
         }
     }
-    
+
     /**
      * Logs a PHP error. Mimics php default behaviour. Override this for custom
      * logging.
@@ -330,7 +330,7 @@ abstract class ErrorHandler {
         $errorName = self::getErrorName($e->getCode());
         error_log("PHP {$errorName}:  {$e->getMessage()} in {$e->getFile()} on line {$e->getLine()}");
     }
-    
+
     /**
      * Logs an exception. Mimics php default behaviour. Override this for custom
      * logging.
@@ -342,9 +342,9 @@ abstract class ErrorHandler {
             array_unshift($exceptions, $e);
             $e = $e->getPrevious();
         }
-        
+
         $e = array_shift($exceptions);
-        
+
         // create the message for the first exception
         $class = get_class($e);
         $message  = "PHP Fatal error:  Uncaught exception '{$class}' with message '{$e->getMessage()}' in {$e->getFile()}:{$e->getLine()}\n";
@@ -356,13 +356,13 @@ abstract class ErrorHandler {
             $message .= "\n\nNext exception '{$class}' with message '{$e->getMessage()}' in {$e->getFile()}:{$e->getLine()}\n";
             $message .= "Stack Trace:\n{$e->getTraceAsString()}";
         }
-        
+
         // append last line
         $message .= "\n  thrown in {$e->getFile()} on line {$e->getLine()}";
-        
+
         error_log($message);
     }
-    
+
     /**
      * Handle a PHP error.
      * @param \ErrorException $e The error to be handled.
@@ -379,7 +379,7 @@ abstract class ErrorHandler {
       $this->handleException($e);
     }
 
-    
+
     /**
      * Handles an uncaught exception thrown within this error handler. So make
      * sure this function handles the exception on a different, light-weight
@@ -406,6 +406,12 @@ abstract class ErrorHandler {
         // works, even if the uncaught error is a memory error about 1 byte not
         // being allocated.
         $currentLimit = trim(ini_get('memory_limit'));
+
+        // a limit below zero indicates there is no limit, so no need to increase it
+        if ($currentLimit < 0) {
+          return $currentLimit;
+        }
+
         $unit = strtolower(substr($currentLimit, - 1));
         $factor = 1;
 
@@ -424,7 +430,7 @@ abstract class ErrorHandler {
                 $factor = 1;
         }
 
-        ini_set('memory_limit', ($currentLimit * $factor) + ($this->getMemoryRequirement() * 1024 * 1024));
+        ini_set('memory_limit', ((int)$currentLimit * $factor) + ($this->getMemoryRequirement() * 1024 * 1024));
         return $currentLimit;
     }
 
@@ -435,7 +441,7 @@ abstract class ErrorHandler {
     protected function restoreMemoryLimit($limit) {
         ini_set('memory_limit', $limit);
     }
-    
+
     /**
      * Returns the type of an exception.
      * @param \Exception $e Exception to get the type of.
@@ -448,8 +454,8 @@ abstract class ErrorHandler {
         return get_class($e);
       }
     }
-    
-    /** 
+
+    /**
      * Sets whether script error messages should be logged. If set to null, the
      * php ini value 'log_errors' will be used.
      * @param boolean $flag Whether script error messages should be logged.
@@ -457,8 +463,8 @@ abstract class ErrorHandler {
     public function setLogErrors($flag) {
         $this->logErrors = $flag;
     }
-    
-    /** 
+
+    /**
      * Returns whether script error messages should be logged. If null, the php
      * ini value 'log_errors' will be used.
      * @return boolean Whether script error messages should be logged.
@@ -466,7 +472,7 @@ abstract class ErrorHandler {
     public function getLogErrors() {
         return $this->logErrors;
     }
-    
+
     /**
      * Sets whether to ignore repeated errors. If set to null, the php ini value
      * 'ignore_repeated_errors' will be used.
@@ -475,7 +481,7 @@ abstract class ErrorHandler {
     public function setIgnoreRepeatedErrors($flag) {
         $this->ignoreRepeatedErrors = $flag;
     }
-    
+
     /**
      * Returns whether to ignore repeated errors. If null, the php ini value
      * 'ignore_repeated_errors' will be used.
@@ -484,7 +490,7 @@ abstract class ErrorHandler {
     public function getIgnoreRepeatedErrors() {
         return $this->ignoreRepeatedErrors;
     }
-    
+
     /**
      * Sets whether to ignore source of message when ignoring repeated messages.
      * If set to null, the php ini value 'ignore_repeated_source' will be used.
@@ -494,7 +500,7 @@ abstract class ErrorHandler {
     public function setIgnoreRepeatedSource($flag) {
         $this->ignoreRepeatedSource = $flag;
     }
-    
+
     /**
      * Returns whether to ignore source of message when ignoring repeated
      * messages. If null, the php ini value 'ignore_repeated_source' will be
